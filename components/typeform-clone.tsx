@@ -264,7 +264,7 @@ export default function TypeformClone() {
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label htmlFor="nombre_personne_equipe">Nombre de personnes dans votre équipe ou d’employés <span className="text-red-500">*</span></Label>
-              <Input id="nombre_personne_equipe" name="nombre_personne_equipe" value={formData.nombre_personne_equipe} onChange={handleInputChange} />
+              <Input id="nombre_personne_equipe" name="nombre_personne_equipe" value={formData.nombre_personne_equipe} onChange={handleInputChange} required/>
             </div>
           </div>
 
@@ -276,7 +276,8 @@ export default function TypeformClone() {
               name="presentation_organisation"
               value={formData.presentation_organisation}
               onChange={handleInputChange}
-              className="min-h-[150px]"
+              className="min-h-[150px]" 
+              required
             />
           </div>
 
@@ -303,7 +304,7 @@ export default function TypeformClone() {
             <RadioGroup
               value={formData.experience_leadership}
               onValueChange={(value) => handleRadioChange("experience_leadership", value)}
-            >
+             required>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="0-2" id="0-2" />
                 <Label htmlFor="0-2">0-2 ans</Label>
@@ -358,6 +359,7 @@ export default function TypeformClone() {
               value={formData.leadership_surmonte}
               onChange={handleInputChange}
               className="min-h-[150px]"
+              required
             />
           </div>
 
@@ -454,7 +456,7 @@ export default function TypeformClone() {
           <div className="space-y-4">
             <Label htmlFor="cv">CV (max. 3 pages) <span className="text-red-500">*</span></Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Input id="cv" type="file" onChange={handleFileChange} className="hidden" />
+              <Input id="cv" type="file" onChange={handleFileChange} className="hidden" required/>
               <Label htmlFor="cv" className="cursor-pointer flex flex-col items-center">
                 <Upload className="h-10 w-10 text-gray-400 mb-2" />
                 <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner des fichiers</span>
@@ -466,7 +468,7 @@ export default function TypeformClone() {
           <div className="space-y-4">
             <Label htmlFor="photo">Photo portrait professionnelle <span className="text-red-500">*</span></Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Input id="photo" type="file" onChange={handleFileChange} className="hidden" />
+              <Input id="photo" type="file" onChange={handleFileChange} className="hidden" required/>
               <Label htmlFor="photo" className="cursor-pointer flex flex-col items-center">
                 <Upload className="h-10 w-10 text-gray-400 mb-2" />
                 <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner des fichiers</span>
