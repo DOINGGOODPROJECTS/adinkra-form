@@ -9,9 +9,8 @@ function getGoogleAuth() {
 
   const auth = new google.auth.GoogleAuth({
     credentials: {
-      client_email: 'adinkra-form@adinkra-fellowship-458714.iam.gserviceaccount.com',
-      // client_email: process.env.GOOGLE_CLIENT_EMAIL,
-      private_key: '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCgOHDrEAh4KPzz\nR9kuMzj9XS7+vH3yPs7pIu6fNN5kbhFKdYBS2Eb78tKepeRxgRgwPQgS98I7/Yju\nohne8XI5g4nNnD8UoTUXi/FJnmSRfY9i1Vdd1A/S6f8lhSr60dz657d+5fZEMVFO\nOnB3zA3K3DAy1sBs9vv4NRGVC27dLEeOghPoldEl+yKSvJLd5zmhP7xeF5hQjVkd\nbxb5XrTQ365nH6qVuzeoNiOQeNfWLq4nUij/tLj/4PPb8PFA28aZqDqexY89pKjn\ndo968jNYj1s/EJnEixnPk/bbHuqaVHo33JIrbXVunqpyOrrcKkXWuaIOsocX1KtM\nArtgPzvdAgMBAAECggEAHefjFdEwj4MxEdTloiS//LTNvpEe3h5gny4cxb1HzI2p\n7xDHIs+JUmJU83VqElCjG+/sZ6P0zp9IlahOtWkyZa9ag7UoJhjgENTXdSMaSPjb\nkHpbXCFm0brJG+8DIn2VJoUlYEuav8hH0ZcBYq8FHQoj+f1RPhWM2xvGvB/98czT\n1A2Bgice8QQMNSVfDIpkApg2gY3VPkSO5pZ0LysoDTEsTGs/cVPiA0KZb5n62ibY\n8We6wq6JiyLEXSHRfHKkx58T2F864izE0jUbs1fsgNNxMEdauAkVW3+WC+J4ktoS\nzJv66GU9tDw2ktb77wyOzR4mhWnoz3ttORL1xmlWsQKBgQDfxazzZNTSnB/tN2yk\nXTBYDcZQud8xXVGwUnYrCcWPizkiE9fZa/m+Tz4iS7HF/DujLkRK7aUy/gN9os8Z\ngUmDuFaeLgZRZnxvGHzPDw3DTP9bV/WECh6knwV8T/H4TauvRXNjuQsxXrlz1Cem\nwLfXw8l7Xec7h+SxpOQn+Pe3sQKBgQC3S6iY7tjoOhzPrT3QnBwRxwjpmnNZNuKW\ntAn3cC9WTuaqLSZYtV8bpFjWWPgX3CncOz0g63rcWv+8V7a9K48zeiz7ysUglf28\n7LBUZnrgsTmkbKHiO70Gf2ArqzW59hcHsgbqlO6SXNDcNbqqNrcyBjcY8fatorxZ\nIlocvLU97QKBgHVxbiAgH4KZ5je+CwsIzcKpGBhuNTHXZHRCEzrrWgDIdSfpejPm\nc6DqPhYJ3Deo9jPiqH0a1MU6g+KAfGlKbabwLKXAShiWzWARXg/eOr7xvmPWekje\nds63l01zN++19BF9Rd5k0/cJXBPqmRTvuI1JeImC80VPQTvq6sP/6yNBAoGBALY7\nlVq/FI4FwMFFBxERM+ME1DqUYRwQskSMqOAF/Do95ZzJmLdXU0CDLAOnnrjyHfgk\nOUkydQsBugIB3t/Cn/PZA0IuvcAA/61GUKUI4h/kc1+i1Wu8YtlD6FRiOt8w6IKx\nH6k3+t0vREO7c2NpVMd6YGr/nXXSNpoTyi2J/FOdAoGAaHZJIL90eFw79yYKe+rF\nuljhWnE0VIpFvCnM7bMZLQI/1raXlgat4yNnIXkJie7CCiSuqV2O6podINckDV1K\nREEdfsM7Jw3iq4+iw//c9SMKQdBY8r0dt5PJf1gwQcHNNIAobPfxC91vSV9RdWyi\nFdGlIJfyD6siuH3S9za6VUA=\n-----END PRIVATE KEY-----\n',
+      client_email: process.env.GOOGLE_CLIENT_EMAIL,
+      private_key: privateKey,
     },
     scopes: ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"],
   })
@@ -22,8 +21,9 @@ function getGoogleAuth() {
 export async function countFilledRowsInColumnA(): Promise<number> {
   const auth = getGoogleAuth()
   const sheets = google.sheets({ version: "v4", auth })
-  const sheetId = '1o81lfllsNGFANFJM-JG1EpzJ38SpMUCz0vx7jWwVcBo'
-  const SHEET_NAME = "Submissions"
+  
+  const sheetId = process.env.GOOGLE_SHEET_ID
+  const SHEET_NAME = process.env.SHEET_NAME
 
   try {
     const response = await sheets.spreadsheets.values.get({
@@ -48,9 +48,8 @@ async function addToGoogleSheet(data: Record<string, string>) {
     const auth = getGoogleAuth()
     const sheets = google.sheets({ version: "v4", auth })
 
-    const sheetId = '1o81lfllsNGFANFJM-JG1EpzJ38SpMUCz0vx7jWwVcBo'
-    // const sheetId = process.env.GOOGLE_SHEET_ID
-    const SHEET_NAME = "Submissions"
+    const sheetId = process.env.GOOGLE_SHEET_ID
+    const SHEET_NAME = process.env.SHEET_NAME
     const count = await countFilledRowsInColumnA();
 
     if (!sheetId) {
@@ -112,8 +111,7 @@ async function uploadToDrive(file: File, fileName: string) {
     const auth = getGoogleAuth()
     const drive = google.drive({ version: "v3", auth })
 
-    const folderId = '1qVVdIIOjJz1krc5W73XuCfYjh_355ic-'
-    // const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID
+    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID
 
     if (!folderId) {
       throw new Error("ID de dossier Google Drive non défini")
