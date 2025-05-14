@@ -424,7 +424,7 @@ export default function TypeformClone() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="presentation_organisation">Présentation de l’organisation (750 caractères max)</Label>
+            <Label htmlFor="presentation_organisation">Présentation de l’organisation (750 caractères max) <span className="text-red-500">*</span></Label>
             <p className="text-xs italic text-gray-300">Présentez brièvement votre structure : dans quel secteur évoluez-vous et sur quoi vous concentrez-vous ? (bullet points acceptés)</p>
             <Textarea
               id="presentation_organisation"
@@ -508,7 +508,7 @@ export default function TypeformClone() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="leadership_surmonte">Quel défi de leadership avez-vous surmonté et qu’avez-vous appris ? (750 caractères max)</Label>
+            <Label htmlFor="leadership_surmonte">Quel défi de leadership avez-vous surmonté et qu’avez-vous appris ? (750 caractères max) <span className="text-red-500">*</span></Label>
             <p className="text-xs italic text-gray-300">Partagez un défi important que vous avez rencontré, la solution que vous avez imaginée, et ce que cette expérience vous a appris.</p>
             <Textarea
               id="leadership_surmonte"
