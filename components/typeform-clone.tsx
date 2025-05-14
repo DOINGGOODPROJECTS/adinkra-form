@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { phoneRules } from "@/lib/phoneRules"
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -35,7 +36,7 @@ export default function TypeformClone() {
     nombre_personne_equipe: "",
     contribution_liens_afrique_diaspora: "",
     quattendez_vous_reseau_adinkra: "",
-    categorie_distinction: "",
+    categorie_distinction: "technologie",
     experience_leadership: "",
     resume_realisation: "",
     impact_communautaire: "",
@@ -64,6 +65,11 @@ export default function TypeformClone() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
   const handleRadioChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
@@ -72,10 +78,62 @@ export default function TypeformClone() {
     setFormData((prev) => ({ ...prev, [name]: checked }))
   }
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep((prev) => prev + 1)
-      window.scrollTo(0, 0)
+  const isStepValid = (stepIndex: number, formData: Record<string, any>) => {
+    const requiredFieldsPerStep: Record<number, string[]> = {
+      1: ["nom_complet", "date_naissance", "nationalite", "pays_residence", "email", "telephone"],
+      2: ["categorie_distinction", "fonction", "nombre_personne_equipe", "presentation_organisation"],
+      3: ["experience_leadership", "resume_realisation", "impact_communautaire", "leadership_surmonte", "contribution_liens_afrique_diaspora", "quattendez_vous_reseau_adinkra", "prix_programmes_bourses_leadership", "biographie_courte"],
+      4: ["video_motivation", "cv", "photo"],
+      5: ["consentement"]
+    }
+
+    const fields = requiredFieldsPerStep[stepIndex] || []
+    return fields.every((field) => {
+      const value = formData[field]
+      if (typeof value === "boolean") return value
+      return value !== undefined && value !== null && value.toString().trim() !== ""
+    })
+  }
+
+  const isPhoneValid = (country: string, phone: string): boolean => {
+    const rule = phoneRules[country]
+    if (!rule) return true // Si aucune règle, ne pas bloquer
+    const digits = phone.replace(/\D/g, "") // Supprime tout sauf les chiffres
+    return digits.length >= rule.min && digits.length <= rule.max
+  }
+
+  const handleNext = (currentStep: number, setCurrentStep: (step: number) => void, formData: Record<string, any>, steps: any[],
+    toast: Function) => {
+    // if (currentStep < steps.length - 1) {
+    //   setCurrentStep((prev) => prev + 1)
+    //   window.scrollTo(0, 0)
+    // }
+
+    const nextStep = currentStep + 1
+
+    if (currentStep === 1) {
+      const { pays_residence, telephone } = formData
+      if (!isPhoneValid(pays_residence, telephone)) {
+        toast({
+          title: "Numéro invalide",
+          description: `Le numéro de téléphone ne correspond pas au format du pays sélectionné (${pays_residence}).`,
+          variant: "destructive",
+        })
+        return
+      }
+    }
+
+    if (isStepValid(currentStep, formData)) {
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(nextStep)
+        window.scrollTo(0, 0)
+      }
+    } else {
+      toast({
+        title: "Champs requis",
+        description: "Veuillez remplir tous les champs obligatoires avant de continuer.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -87,6 +145,15 @@ export default function TypeformClone() {
   }
 
   const handleSubmit = async () => {
+    if (!isStepValid(5, formData)) {
+      toast({
+        title: "Formulaire incomplet",
+        description: "Veuillez remplir tous les champs requis avant de soumettre.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -141,7 +208,9 @@ export default function TypeformClone() {
             Important : Typeform peut mémoriser votre progression si vous utilisez le même appareil et navigateur, ce qui vous permet de reprendre là où vous vous étiez arrêté(e), grâce à un cookie local.
             Si vous souhaitez consulter les questions à l’avance, vous pouvez télécharger le formulaire en version Word (à titre informatif uniquement) : Télécharger la version Word (<a href="https://docs.google.com/document/d/1RgyByqHbx9Uu_jhGedldDkNMAl69Dh4IULEYpUV0lY8/edit?usp=sharing">https://docs.google.com/document/d/1RgyByqHbx9Uu_jhGedldDkNMAl69Dh4IULEYpUV0lY8/edit?usp=sharing</a>)
           </p>
-          <Button onClick={handleNext} className="mt-4">
+          <Button
+            onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+            className="mt-4">
             Commencer <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
@@ -161,7 +230,7 @@ export default function TypeformClone() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date_naissance">Date de naissance <span className="text-red-500">*</span></Label>
               <Input id="date_naissance" name="date_naissance" type="date" value={formData.date_naissance} onChange={handleInputChange} required />
@@ -170,11 +239,51 @@ export default function TypeformClone() {
             <div className="space-y-2">
               <Label htmlFor="nationalite">Nationalité <span className="text-red-500">*</span></Label>
               <Input id="nationalite" placeholder="Nationalité" name="nationalite" value={formData.nationalite} onChange={handleInputChange} />
-            </div>
+            </div>            
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="pays_residence">Pays de Résidence <span className="text-red-500">*</span></Label>
-              <Input id="pays_residence" placeholder="Pays de Résidence" name="pays_residence" type="pays_residence" value={formData.pays_residence} onChange={handleInputChange} required />
+              <Label htmlFor="pays_residence">
+                Pays de Résidence <span className="text-red-500">*</span>
+              </Label>
+              <select
+                id="pays_residence"
+                name="pays_residence"
+                value={formData.pays_residence}
+                onChange={handleSelectChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                <option value="">Sélectionnez un pays</option>
+                {[
+                  "Afghanistan", "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre", "Angola", "Antigua-et-Barbuda",
+                  "Arabie Saoudite", "Argentine", "Arménie", "Australie", "Autriche", "Azerbaïdjan", "Bahamas", "Bahreïn", "Bangladesh",
+                  "Barbade", "Belgique", "Belize", "Bénin", "Bhoutan", "Biélorussie", "Birmanie", "Bolivie", "Bosnie-Herzégovine",
+                  "Botswana", "Brésil", "Brunei", "Bulgarie", "Burkina Faso", "Burundi", "Cambodge", "Cameroun", "Canada", "Cap-Vert",
+                  "Chili", "Chine", "Chypre", "Colombie", "Comores", "Congo (Brazzaville)", "Congo (Kinshasa)", "Corée du Nord",
+                  "Corée du Sud", "Costa Rica", "Côte d'Ivoire", "Croatie", "Cuba", "Danemark", "Djibouti", "Dominique", "Égypte",
+                  "Émirats arabes unis", "Équateur", "Érythrée", "Espagne", "Estonie", "Eswatini", "États-Unis", "Éthiopie", "Fidji",
+                  "Finlande", "France", "Gabon", "Gambie", "Géorgie", "Ghana", "Grèce", "Grenade", "Guatemala", "Guinée",
+                  "Guinée équatoriale", "Guinée-Bissau", "Guyana", "Haïti", "Honduras", "Hongrie", "Inde", "Indonésie", "Irak",
+                  "Iran", "Irlande", "Islande", "Israël", "Italie", "Jamaïque", "Japon", "Jordanie", "Kazakhstan", "Kenya", "Kirghizistan",
+                  "Kiribati", "Kosovo", "Koweït", "Laos", "Lesotho", "Lettonie", "Liban", "Libéria", "Libye", "Liechtenstein", "Lituanie",
+                  "Luxembourg", "Macédoine du Nord", "Madagascar", "Malaisie", "Malawi", "Maldives", "Mali", "Malte", "Maroc",
+                  "Marshall", "Maurice", "Mauritanie", "Mexique", "Micronésie", "Moldavie", "Monaco", "Mongolie", "Monténégro",
+                  "Mozambique", "Namibie", "Nauru", "Népal", "Nicaragua", "Niger", "Nigéria", "Norvège", "Nouvelle-Zélande", "Oman",
+                  "Ouganda", "Ouzbékistan", "Pakistan", "Palaos", "Palestine", "Panama", "Papouasie-Nouvelle-Guinée", "Paraguay",
+                  "Pays-Bas", "Pérou", "Philippines", "Pologne", "Portugal", "Qatar", "République centrafricaine", "République tchèque",
+                  "Roumanie", "Royaume-Uni", "Russie", "Rwanda", "Saint-Kitts-et-Nevis", "Saint-Marin", "Saint-Vincent-et-les-Grenadines",
+                  "Sainte-Lucie", "Salomon", "Salvador", "Samoa", "São Tomé-et-Príncipe", "Sénégal", "Serbie", "Seychelles", "Sierra Leone",
+                  "Singapour", "Slovaquie", "Slovénie", "Somalie", "Soudan", "Soudan du Sud", "Sri Lanka", "Suède", "Suisse", "Suriname",
+                  "Syrie", "Tadjikistan", "Tanzanie", "Tchad", "Thaïlande", "Timor oriental", "Togo", "Tonga", "Trinité-et-Tobago",
+                  "Tunisie", "Turkménistan", "Turquie", "Tuvalu", "Ukraine", "Uruguay", "Vanuatu", "Vatican", "Venezuela", "Viêt Nam",
+                  "Yémen", "Zambie", "Zimbabwe"
+                ].map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -185,8 +294,29 @@ export default function TypeformClone() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="telephone">N° Téléphone (WhatsApp/Telegram) <span className="text-red-500">*</span></Label>
-              <Input id="telephone" placeholder="N° Téléphone (WhatsApp/Telegram)" name="telephone" value={formData.telephone} onChange={handleInputChange} />
+              <Label htmlFor="telephone">
+                N° Téléphone (WhatsApp/Telegram) <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="telephone"
+                placeholder="N° Téléphone (WhatsApp/Telegram)"
+                name="telephone"
+                value={formData.telephone}
+                onChange={handleInputChange}
+                required
+                className={`${
+                  formData.telephone &&
+                  !isPhoneValid(formData.pays_residence, formData.telephone)
+                    ? "border-red-500"
+                    : ""
+                }`}
+              />
+              {formData.telephone &&
+                !isPhoneValid(formData.pays_residence, formData.telephone) && (
+                  <p className="text-sm text-red-500">
+                    Numéro invalide pour le pays sélectionné ({formData.pays_residence})
+                  </p>
+                )}
             </div>
           </div>          
           
@@ -194,7 +324,9 @@ export default function TypeformClone() {
             <Button variant="outline" onClick={handlePrevious}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Retour
             </Button>
-            <Button onClick={handleNext}>
+            <Button
+              onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+              className="mt-4">
               Continuer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -209,11 +341,20 @@ export default function TypeformClone() {
           <h2 className="text-2xl font-bold">Fonction / Titre Professionnel</h2>
 
           <div className="space-y-2">
-            <Label>Catégorie de distinction <span className="text-red-500">*</span></Label>
+            <Label>
+              Catégorie de distinction <span className="text-red-500">*</span>
+            </Label>
             <RadioGroup
-              value={formData.categorie_distinction}
-              onValueChange={(value) => handleRadioChange("categorie_distinction", value)}
-              required>
+              value={["technologie", "finance", "sante", "education"].includes(formData.categorie_distinction) ? formData.categorie_distinction : "autre"}
+              onValueChange={(value) => {
+                if (value === "autre") {
+                  setFormData((prev) => ({ ...prev, categorie_distinction: "" })) // Vide le champ texte si Autre sélectionné
+                } else {
+                  setFormData((prev) => ({ ...prev, categorie_distinction: value }))
+                }
+              }}
+              required
+            >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="technologie" id="technologie" />
                 <Label htmlFor="technologie">Technologie</Label>
@@ -235,6 +376,20 @@ export default function TypeformClone() {
                 <Label htmlFor="autre">Autre</Label>
               </div>
             </RadioGroup>
+
+            {["technologie", "finance", "sante", "education"].includes(formData.categorie_distinction) === false && (
+              <div className="mt-2 space-y-1">
+                <Label htmlFor="categorie_distinction">Précisez votre catégorie</Label>
+                <Input
+                  id="categorie_distinction"
+                  name="categorie_distinction"
+                  placeholder="Votre catégorie"
+                  value={formData.categorie_distinction}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -263,8 +418,8 @@ export default function TypeformClone() {
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nombre_personne_equipe">Nombre de personnes dans votre équipe ou d’employés <span className="text-red-500">*</span></Label>
-              <Input id="nombre_personne_equipe" name="nombre_personne_equipe" value={formData.nombre_personne_equipe} onChange={handleInputChange} required/>
+              <Label htmlFor="nombre_personne_equipe">Nombre de personnes dans votre équipe ou d’employés</Label>
+              <Input type="number" id="nombre_personne_equipe" name="nombre_personne_equipe" value={formData.nombre_personne_equipe} onChange={handleInputChange} />
             </div>
           </div>
 
@@ -285,7 +440,9 @@ export default function TypeformClone() {
             <Button variant="outline" onClick={handlePrevious}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Retour
             </Button>
-            <Button onClick={handleNext}>
+            <Button
+              onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+              className="mt-4">
               Continuer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -419,7 +576,9 @@ export default function TypeformClone() {
             <Button variant="outline" onClick={handlePrevious}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Retour
             </Button>
-            <Button onClick={handleNext}>
+            <Button
+              onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+              className="mt-4">
               Continuer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -481,14 +640,16 @@ export default function TypeformClone() {
             <Button variant="outline" onClick={handlePrevious}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Retour
             </Button>
-            <Button onClick={handleNext}>
+            <Button
+              onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+              className="mt-4">
               Continuer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
       ),
     },
-    // Étape 7: Commentaires et consentement
+    // Étape 6: Commentaires et consentement
     {
       title: "Déclaration et consentement",
       content: (
