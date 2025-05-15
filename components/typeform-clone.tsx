@@ -659,28 +659,32 @@ export default function TypeformClone() {
             <Input id="autre_video" placeholder="Autres liens vidéo (optionnel)" name="autre_video" value={formData.autre_video} onChange={handleInputChange} />
           </div>
 
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <Label htmlFor="cv">CV <span className="text-red-500">*</span></Label>
+          <div className="space-y-4">
+            <Label htmlFor="cv">CV (max. 3 pages) <span className="text-red-500">*</span></Label>
             <p className="text-gray-300 italic text-xs text-justify">Format accepté : PDF</p>
-            <Input
-              id="cv"
-              name="cv"
-              type="file"
-              accept=".pdf"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <Label htmlFor="cv" className="cursor-pointer flex flex-col items-center">
-              <Upload className="h-10 w-10 text-gray-400 mb-2" />
-              <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner un fichier</span>
-              <span className="text-xs text-gray-500 mt-1">ou glissez-déposez ici</span>
-              {fileNames.find((f) => f.endsWith(".pdf")) && (
-                <span className="text-green-600 mt-2 text-sm">
-                  Fichier sélectionné : {fileNames.find((f) => f.endsWith(".pdf"))}
-                </span>
-              )}
-            </Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <Input
+                id="cv"
+                name="cv"
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="hidden"
+                required
+              />
+              <Label htmlFor="cv" className="cursor-pointer flex flex-col items-center">
+                <Upload className="h-10 w-10 text-gray-400 mb-2" />
+                <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner un fichier</span>
+                <span className="text-xs text-gray-500 mt-1">ou glissez-déposez ici</span>
+                {fileNames.find((f) => /\.pdf$/i.test(f)) && (
+                  <span className="text-green-600 mt-2 text-sm">
+                    Fichier sélectionné : {fileNames.find((f) => /\.pdf$/i.test(f))}
+                  </span>
+                )}
+              </Label>
+            </div>
           </div>
+
 
           <div className="space-y-4">
             <Label htmlFor="photo">Photo portrait professionnelle <span className="text-red-500">*</span></Label>
