@@ -660,6 +660,8 @@ export default function TypeformClone() {
           </div>
 
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <Label htmlFor="cv">CV <span className="text-red-500">*</span></Label>
+            <p className="text-gray-300 italic text-xs text-justify">Format accepté : PDF</p>
             <Input
               id="cv"
               name="cv"
