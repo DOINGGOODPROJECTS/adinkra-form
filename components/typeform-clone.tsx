@@ -17,9 +17,12 @@ import { useToast } from "@/hooks/use-toast"
 import { ArrowRight, ArrowLeft, Upload, Check } from "lucide-react"
 
 export default function TypeformClone() {
-  const today = new Date();
-  const maxDate = format(subYears(today, 18), "yyyy-MM-dd"); // Date pour 18 ans
-  const minDate = format(subYears(today, 40), "yyyy-MM-dd"); // Date pour 40 ans
+  const currentYear = new Date().getFullYear();
+  const minYear = currentYear - 40; // Plus vieux = 40 ans
+  const maxYear = currentYear - 18; // Plus jeune = 18 ans
+
+  const minDate = `${minYear}-01-01`;
+  const maxDate = `${maxYear}-12-31`; // On accepte toute l'année
 
   const { toast } = useToast()
   const [currentStep, setCurrentStep] = useState(0)
