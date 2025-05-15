@@ -662,6 +662,7 @@ export default function TypeformClone() {
           <div className="space-y-4">
             <Label htmlFor="cv">CV (max. 3 pages) <span className="text-red-500">*</span></Label>
             <p className="text-gray-300 italic text-xs text-justify">Format accepté : PDF</p>
+            <p className="text-gray-300 italic text-xs text-justify">Format de Nommage : CV_NOM_COMPLET</p>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <Input
                 id="cv"
@@ -689,6 +690,7 @@ export default function TypeformClone() {
           <div className="space-y-4">
             <Label htmlFor="photo">Photo portrait professionnelle <span className="text-red-500">*</span></Label>
             <p className="text-gray-300 italic text-xs text-justify">Formats acceptés : PNG, JPG, JPEG</p>
+            <p className="text-gray-300 italic text-xs text-justify">Format de Nommage : NOM_COMPLET</p>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <Input
                 id="photo"
