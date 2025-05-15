@@ -3,6 +3,7 @@
 import type React from "react"
 import { phoneRules } from "@/lib/phoneRules"
 
+import { subYears, format } from "date-fns"; 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { submitForm } from "@/app/actions"
@@ -16,6 +17,10 @@ import { useToast } from "@/hooks/use-toast"
 import { ArrowRight, ArrowLeft, Upload, Check } from "lucide-react"
 
 export default function TypeformClone() {
+  const today = new Date();
+  const maxDate = format(subYears(today, 18), "yyyy-MM-dd"); // Date pour 18 ans
+  const minDate = format(subYears(today, 40), "yyyy-MM-dd"); // Date pour 40 ans
+
   const { toast } = useToast()
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -232,8 +237,16 @@ export default function TypeformClone() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="date_naissance">Date de naissance <span className="text-red-500">*</span></Label>
-              <Input id="date_naissance" name="date_naissance" type="date" value={formData.date_naissance} onChange={handleInputChange} required />
+              <Label htmlFor="date_naissance">
+                Date de naissance <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="date_naissance"
+                name="date_naissance" type="date" value={formData.date_naissance}
+                onChange={handleInputChange}
+                min={minDate} max={maxDate}
+                required
+              />
             </div>
 
             <div className="space-y-2">
