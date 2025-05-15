@@ -123,15 +123,10 @@ export default function TypeformClone() {
     return digits.length >= rule.min && digits.length <= rule.max
   }
 
-  const handleNext = (currentStep: number, setCurrentStep: (step: number) => void, formData: Record<string, any>, steps: any[],
-    toast: Function) => {
-    // if (currentStep < steps.length - 1) {
-    //   setCurrentStep((prev) => prev + 1)
-    //   window.scrollTo(0, 0)
-    // }
-
+  const handleNext = (currentStep: number, setCurrentStep: (step: number) => void, formData: Record<string, any>, steps: any[], toast: Function) => {
     const nextStep = currentStep + 1
 
+    // Étape 1 : Validation du téléphone
     if (currentStep === 1) {
       const { pays_residence, telephone } = formData
       if (!isPhoneValid(pays_residence, telephone)) {
@@ -142,8 +137,20 @@ export default function TypeformClone() {
         })
         return
       }
+
+      // Vérification de la date de naissance
+      const birthYear = new Date(formData.date_naissance).getFullYear()
+      if (birthYear < 1985 || birthYear > 2007) {
+        toast({
+          title: "Date de naissance invalide",
+          description: "Votre date de naissance doit être comprise entre 1985 et 2007.",
+          variant: "destructive",
+        })
+        return
+      }
     }
 
+    // Validation générale des champs obligatoires
     if (isStepValid(currentStep, formData)) {
       if (currentStep < steps.length - 1) {
         setCurrentStep(nextStep)
@@ -157,6 +164,7 @@ export default function TypeformClone() {
       })
     }
   }
+
 
   const handlePrevious = () => {
     if (currentStep > 0) {
