@@ -74,7 +74,21 @@ export default function TypeformClone() {
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (name === "pays_residence") {
+      const rule = phoneRules[value as keyof typeof phoneRules]
+      const dialcode = rule?.dialcode || ""
+
+      setFormData((prev) => ({
+        ...prev,
+        pays_residence: value,
+        telephone: dialcode, // initialise avec l'indicatif
+      }))
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
   }
 
   const handleRadioChange = (name: string, value: string) => {
@@ -316,6 +330,7 @@ export default function TypeformClone() {
                 id="telephone"
                 placeholder="N° Téléphone (WhatsApp/Telegram)"
                 name="telephone"
+                type="tel"
                 value={formData.telephone}
                 onChange={handleInputChange}
                 required
