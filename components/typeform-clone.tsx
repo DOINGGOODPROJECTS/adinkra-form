@@ -675,7 +675,7 @@ export default function TypeformClone() {
               <Label htmlFor="cv" className="cursor-pointer flex flex-col items-center">
                 <Upload className="h-10 w-10 text-gray-400 mb-2" />
                 <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner un fichier</span>
-                <span className="text-xs text-gray-500 mt-1">ou glissez-déposez ici</span>
+                {/* <span className="text-xs text-gray-500 mt-1">ou glissez-déposez ici</span> */}
                 {fileNames.find((f) => /\.pdf$/i.test(f)) && (
                   <span className="text-green-600 mt-2 text-sm">
                     Fichier sélectionné : {fileNames.find((f) => /\.pdf$/i.test(f))}
@@ -702,7 +702,7 @@ export default function TypeformClone() {
               <Label htmlFor="photo" className="cursor-pointer flex flex-col items-center">
                 <Upload className="h-10 w-10 text-gray-400 mb-2" />
                 <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner un fichier</span>
-                <span className="text-xs text-gray-500 mt-1">ou glissez-déposez ici</span>
+                {/* <span className="text-xs text-gray-500 mt-1">ou glissez-déposez ici</span> */}
                 {fileNames.find((f) => /\.(jpe?g|png)$/i.test(f)) && (
                   <span className="text-green-600 mt-2 text-sm">
                     Fichier sélectionné : {fileNames.find((f) => /\.(jpe?g|png)$/i.test(f))}
