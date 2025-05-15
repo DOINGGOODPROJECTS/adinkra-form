@@ -60,12 +60,16 @@ export default function TypeformClone() {
   const [fileNames, setFileNames] = useState<string[]>([])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files)
-      setFiles((prev) => [...prev, ...newFiles])
-      setFileNames((prev) => [...prev, ...newFiles.map((file) => file.name)])
+    const { name, files: selectedFiles } = e.target
+    if (selectedFiles && selectedFiles.length > 0) {
+      const newFile = selectedFiles[0]
+      setFiles((prev) =>
+        [...prev.filter((f:any) => f.fieldName !== name), Object.assign(newFile, { fieldName: name })]
+      )
+      setFileNames((prev) => [...prev, newFile.name])
     }
   }
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -99,7 +103,7 @@ export default function TypeformClone() {
     setFormData((prev) => ({ ...prev, [name]: checked }))
   }
 
-  const isStepValid = (stepIndex: number, formData: Record<string, any>) => {
+  const isStepValid = (stepIndex: number, formData: Record<string, any>, files: File[]) => {
     const requiredFieldsPerStep: Record<number, string[]> = {
       1: ["nom_complet", "date_naissance", "nationalite", "pays_residence", "email", "telephone"],
       2: ["categorie_distinction", "fonction", "presentation_organisation"],
@@ -109,12 +113,18 @@ export default function TypeformClone() {
     }
 
     const fields = requiredFieldsPerStep[stepIndex] || []
+
     return fields.every((field) => {
+      if (field === "cv" || field === "photo") {
+        return files.some((file:any) => file.fieldName === field)
+      }
+
       const value = formData[field]
       if (typeof value === "boolean") return value
       return value !== undefined && value !== null && value.toString().trim() !== ""
     })
   }
+
 
   const isPhoneValid = (country: string, phone: string): boolean => {
     const rule = phoneRules[country]
@@ -123,12 +133,13 @@ export default function TypeformClone() {
     return digits.length >= rule.min && digits.length <= rule.max
   }
 
-  const handleNext = (currentStep: number, setCurrentStep: (step: number) => void, formData: Record<string, any>, steps: any[], toast: Function) => {
+  const handleNext = (currentStep: number, setCurrentStep: (step: number) => void, formData: Record<string, any>, files: File[], steps: any[], toast: Function) => {
     const nextStep = currentStep + 1
 
-    // Étape 1 : Validation du téléphone
+    // Étape 1 : Validation du téléphone et de la date de naissance
     if (currentStep === 1) {
-      const { pays_residence, telephone } = formData
+      const { pays_residence, telephone, date_naissance } = formData
+
       if (!isPhoneValid(pays_residence, telephone)) {
         toast({
           title: "Numéro invalide",
@@ -138,8 +149,7 @@ export default function TypeformClone() {
         return
       }
 
-      // Vérification de la date de naissance
-      const birthYear = new Date(formData.date_naissance).getFullYear()
+      const birthYear = new Date(date_naissance).getFullYear()
       if (birthYear < 1985 || birthYear > 2007) {
         toast({
           title: "Date de naissance invalide",
@@ -150,8 +160,8 @@ export default function TypeformClone() {
       }
     }
 
-    // Validation générale des champs obligatoires
-    if (isStepValid(currentStep, formData)) {
+    // Validation des champs requis
+    if (isStepValid(currentStep, formData, files)) {
       if (currentStep < steps.length - 1) {
         setCurrentStep(nextStep)
         window.scrollTo(0, 0)
@@ -165,7 +175,6 @@ export default function TypeformClone() {
     }
   }
 
-
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1)
@@ -174,7 +183,7 @@ export default function TypeformClone() {
   }
 
   const handleSubmit = async () => {
-    if (!isStepValid(5, formData)) {
+    if (!isStepValid(5, formData, files)) {
       toast({
         title: "Formulaire incomplet",
         description: "Veuillez remplir tous les champs requis avant de soumettre.",
@@ -238,7 +247,7 @@ export default function TypeformClone() {
             Si vous souhaitez consulter les questions à l’avance, vous pouvez télécharger le formulaire en version Word (à titre informatif uniquement) : Télécharger la version Word (<a href="https://docs.google.com/document/d/1RgyByqHbx9Uu_jhGedldDkNMAl69Dh4IULEYpUV0lY8/edit?usp=sharing">https://docs.google.com/document/d/1RgyByqHbx9Uu_jhGedldDkNMAl69Dh4IULEYpUV0lY8/edit?usp=sharing</a>)
           </p>
           <Button
-            onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+            onClick={() => handleNext(currentStep, setCurrentStep, formData, files, steps, toast)}
             className="mt-4">
             Commencer <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -363,7 +372,7 @@ export default function TypeformClone() {
               <ArrowLeft className="mr-2 h-4 w-4" /> Retour
             </Button>
             <Button
-              onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+              onClick={() => handleNext(currentStep, setCurrentStep, formData, files, steps, toast)}
               className="mt-4">
               Continuer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -479,7 +488,7 @@ export default function TypeformClone() {
               <ArrowLeft className="mr-2 h-4 w-4" /> Retour
             </Button>
             <Button
-              onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+              onClick={() => handleNext(currentStep, setCurrentStep, formData, files, steps, toast)}
               className="mt-4">
               Continuer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -615,7 +624,7 @@ export default function TypeformClone() {
               <ArrowLeft className="mr-2 h-4 w-4" /> Retour
             </Button>
             <Button
-              onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+              onClick={() => handleNext(currentStep, setCurrentStep, formData, files, steps, toast)}
               className="mt-4">
               Continuer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -650,26 +659,49 @@ export default function TypeformClone() {
             <Input id="autre_video" placeholder="Autres liens vidéo (optionnel)" name="autre_video" value={formData.autre_video} onChange={handleInputChange} />
           </div>
 
-          <div className="space-y-4">
-            <Label htmlFor="cv">CV (max. 3 pages) <span className="text-red-500">*</span></Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Input id="cv" type="file" onChange={handleFileChange} className="hidden" required/>
-              <Label htmlFor="cv" className="cursor-pointer flex flex-col items-center">
-                <Upload className="h-10 w-10 text-gray-400 mb-2" />
-                <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner des fichiers</span>
-                <span className="text-xs text-gray-500 mt-1">ou glissez-déposez vos fichiers ici</span>
-              </Label>
-            </div>
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <Input
+              id="cv"
+              name="cv"
+              type="file"
+              accept=".pdf"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <Label htmlFor="cv" className="cursor-pointer flex flex-col items-center">
+              <Upload className="h-10 w-10 text-gray-400 mb-2" />
+              <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner un fichier</span>
+              <span className="text-xs text-gray-500 mt-1">ou glissez-déposez ici</span>
+              {fileNames.find((f) => f.endsWith(".pdf")) && (
+                <span className="text-green-600 mt-2 text-sm">
+                  Fichier sélectionné : {fileNames.find((f) => f.endsWith(".pdf"))}
+                </span>
+              )}
+            </Label>
           </div>
 
           <div className="space-y-4">
             <Label htmlFor="photo">Photo portrait professionnelle <span className="text-red-500">*</span></Label>
+            <p className="text-gray-300 italic text-xs text-justify">Formats acceptés : PNG, JPG, JPEG</p>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Input id="photo" type="file" onChange={handleFileChange} className="hidden" required/>
+              <Input
+                id="photo"
+                name="photo"
+                type="file"
+                accept=".png, .jpg, .jpeg"
+                onChange={handleFileChange}
+                className="hidden"
+                required
+              />
               <Label htmlFor="photo" className="cursor-pointer flex flex-col items-center">
                 <Upload className="h-10 w-10 text-gray-400 mb-2" />
-                <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner des fichiers</span>
-                <span className="text-xs text-gray-500 mt-1">ou glissez-déposez vos fichiers ici</span>
+                <span className="text-sm font-medium text-gray-900">Cliquez pour sélectionner un fichier</span>
+                <span className="text-xs text-gray-500 mt-1">ou glissez-déposez ici</span>
+                {fileNames.find((f) => /\.(jpe?g|png)$/i.test(f)) && (
+                  <span className="text-green-600 mt-2 text-sm">
+                    Fichier sélectionné : {fileNames.find((f) => /\.(jpe?g|png)$/i.test(f))}
+                  </span>
+                )}
               </Label>
             </div>
           </div>
@@ -679,7 +711,7 @@ export default function TypeformClone() {
               <ArrowLeft className="mr-2 h-4 w-4" /> Retour
             </Button>
             <Button
-              onClick={() => handleNext(currentStep, setCurrentStep, formData, steps, toast)}
+              onClick={() => handleNext(currentStep, setCurrentStep, formData, files, steps, toast)}
               className="mt-4">
               Continuer <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
