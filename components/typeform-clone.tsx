@@ -81,7 +81,7 @@ export default function TypeformClone() {
   const isStepValid = (stepIndex: number, formData: Record<string, any>) => {
     const requiredFieldsPerStep: Record<number, string[]> = {
       1: ["nom_complet", "date_naissance", "nationalite", "pays_residence", "email", "telephone"],
-      2: ["categorie_distinction", "fonction", "nombre_personne_equipe", "presentation_organisation"],
+      2: ["categorie_distinction", "fonction", "presentation_organisation"],
       3: ["experience_leadership", "resume_realisation", "impact_communautaire", "leadership_surmonte", "contribution_liens_afrique_diaspora", "quattendez_vous_reseau_adinkra", "prix_programmes_bourses_leadership", "biographie_courte"],
       4: ["video_motivation", "cv", "photo"],
       5: ["consentement"]
